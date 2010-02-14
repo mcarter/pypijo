@@ -1,0 +1,35 @@
+struct<User> {
+    int id;
+    string username;
+    struct<Profile> profile;
+}
+
+struct<Profile> {
+    int id;
+    string firstName;
+    string lastName;
+    string email;
+    date created;
+}
+
+protocol Echo {
+    rpc->server echo {
+        request {
+            arg msg;
+//            string foo; [ length(2, 10), blah('hi', 'fi', 'wi'), mo, foo(22) ]
+        }
+        response {
+            arg msg;
+        }
+    }
+    rpc->server echo2 {
+        request {
+            arg msg;
+//            string foo; [ length(2, 10), blah('hi', 'fi', 'wi'), mo, foo(22) ]
+        }
+        response {
+            arg msg;
+        }
+    }
+    
+}
