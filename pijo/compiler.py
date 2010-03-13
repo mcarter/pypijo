@@ -19,6 +19,7 @@ def tokenize(raw):
 def parse(target):
     p = PijoParser(target)
     p.parse()
+    
     return p.file
 
 class PijoParser(object):
@@ -217,12 +218,19 @@ class PijoProtocol(object):
 
 
 class PijoRPC(object):
+    type = 'rpc'
     def __init__(self, name, direction=None):
         self.name = name
         self.direction = direction
         self.request = None
         self.response = None
-
+        
+class PijoEvent(object):
+    type = 'event'
+    def __init__(self, name, direction=None):
+        self.name = name
+        self.direction = direction
+        self.args = {}
 
 class PijoArgGroup(object):
     def __init__(self):
@@ -248,9 +256,5 @@ class PijoRPCResponse(object):
     def __init__(self):
         self.args = PijoArgGroup()
 
-class PijoEvent(object):
-    def __init__(self, name, direction=None):
-        self.name = name
-        self.direction = direction
-        self.args = {}
+
         

@@ -1,12 +1,11 @@
-import rtjp
+import rtjp.concurrence as rtjp
+from concurrence import Tasklet
 #from db.models import *
-import compiler
+from pijo import compiler
 class ExpectedException(Exception):
     pass
 
-
 class PijoServer(object):
-    
     
     def __init__(self, filename, protocol_name, impl_class):
         pijo_file = compiler.parse(filename)
@@ -19,13 +18,20 @@ class PijoServer(object):
             raise Exception("Protocol %s not found in %s" % (protocol_name, filename))
         self.protocol = pijo_file.protocols[protocol_name]
         self.implementation = impl_class(self)
+        self._server = None
         
-    def __call__(self, sock):
+    def listen(self, port, interface=''):
+        self._server = rtjp.RTJPServer()
+        self._server.listen(port, interface).wait()
+        while True:
+            conn = self._server.accept().wait()
+            Tasklet.new(self._loop)(conn)
+            
+    def _loop(self, conn):
         try:
-            conn = rtjp.RTJPConnection(sock)
             while True:
                 try:
-                    id, name, args = conn.recv_frame()
+                    id, name, args = conn.recv_frame().wait()
                 except:
                     print "Connection Lost"
                     break
@@ -91,19 +97,3 @@ class PijoServer(object):
                 "details": details
             }
         })
-    
-class MyServer(object):
-    
-    def __call__(self, sock):
-        conn = rtjp.RTJPConnection(sock)
-        session = Session()
-        while True:
-            id, name, args = conn.recv_frame()
-            try:
-                l = Log(frame_id=id, name=name, args=str(args))
-                session.add(l)
-                session.commit()
-                conn.send_frame(name, args)
-            except Exception, e:
-                print 'sorry', e
-                return
